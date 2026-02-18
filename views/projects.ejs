@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects — Sara Roth Interiors</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mint: #E0EDEB; --mint-light: #EDF5F3; --mint-pale: #F4F9F8;
+    --gold: #B8943E; --gold-light: #CBAB56; --gold-dark: #9A7A2E; --gold-pale: #F3ECD8;
+    --charcoal: #2C2E2D; --dark: #3A3D3C; --warm-gray: #7A7D7C;
+    --light-gray: #C8CBCA; --white: #FFFFFF; --bg: #F7FAF9;
+    --error: #C45B4A; --success: #5B8C6A;
+    --shadow-sm: 0 1px 3px rgba(44,46,45,0.06);
+    --shadow-md: 0 4px 14px rgba(44,46,45,0.09);
+    --radius: 8px; --radius-lg: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--charcoal); min-height: 100vh; }
+
+  .top-bar {
+    background: var(--charcoal);
+    color: var(--mint-light);
+    padding: 14px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.18);
+  }
+  .top-bar h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600; font-size: 20px; letter-spacing: 3px; color: var(--gold-light);
+  }
+  .top-bar-actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+    padding: 9px 20px; border-radius: var(--radius); border: none; cursor: pointer;
+    transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 7px; letter-spacing: 0.3px; text-decoration: none;
+  }
+  .btn-primary { background: var(--gold); color: white; }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .btn-secondary { background: rgba(255,255,255,0.1); color: var(--mint-light); border: 1px solid rgba(255,255,255,0.18); }
+  .btn-secondary:hover { background: rgba(255,255,255,0.18); }
+  .btn-ghost { background: transparent; color: var(--gold-dark); padding: 7px 14px; border: 1px solid var(--mint); font-size: 13px; }
+  .btn-ghost:hover { background: var(--gold-pale); }
+  .btn-danger-sm { background: transparent; color: var(--error); border: 1px solid rgba(196,91,74,0.3); padding: 5px 12px; font-size: 12px; border-radius: var(--radius); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; }
+  .btn-danger-sm:hover { background: rgba(196,91,74,0.08); }
+
+  .container { max-width: 1000px; margin: 0 auto; padding: 36px 24px 80px; }
+
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .page-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 700; color: var(--dark);
+  }
+  .page-header p { font-size: 14px; color: var(--warm-gray); margin-top: 3px; }
+
+  /* New Project Form */
+  .new-project-card {
+    background: var(--white); border-radius: var(--radius-lg);
+    border: 1.5px dashed var(--light-gray); padding: 28px;
+    margin-bottom: 28px; transition: border-color 0.2s;
+  }
+  .new-project-card:hover { border-color: var(--gold); }
+  .new-project-card h3 {
+    font-family: 'Cormorant Garamond', serif; font-size: 17px;
+    font-weight: 700; color: var(--dark); margin-bottom: 18px;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--gold-dark);
+  }
+  input[type="text"], textarea {
+    padding: 10px 14px; border: 1.5px solid var(--mint);
+    border-radius: var(--radius); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--charcoal); background: var(--white);
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+  }
+  input:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,148,62,0.12); }
+  textarea { resize: vertical; min-height: 60px; }
+
+  /* Project Cards */
+  .projects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 640px) { .projects-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+
+  .project-card {
+    background: var(--white); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm); border: 1px solid rgba(200,203,202,0.4);
+    padding: 24px; transition: all 0.2s; display: flex; flex-direction: column;
+    cursor: pointer; text-decoration: none; color: inherit;
+    position: relative;
+  }
+  .project-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--gold); }
+
+  .project-card-accent {
+    width: 3px; height: 36px; background: var(--gold);
+    border-radius: 2px; position: absolute; left: 0; top: 24px;
+  }
+  .project-card-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 700; color: var(--dark);
+    margin-bottom: 4px; padding-left: 4px;
+  }
+  .project-card-client {
+    font-size: 13px; color: var(--warm-gray); margin-bottom: 14px; padding-left: 4px;
+  }
+  .project-card-meta {
+    display: flex; gap: 12px; margin-top: auto; align-items: center; flex-wrap: wrap;
+  }
+  .meta-badge {
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 20px; background: var(--gold-pale); color: var(--gold-dark);
+  }
+  .meta-date { font-size: 11px; color: var(--light-gray); }
+  .project-card-actions {
+    display: flex; justify-content: flex-end; margin-top: 14px;
+    padding-top: 12px; border-top: 1px solid var(--mint-pale);
+  }
+
+  .empty-state {
+    text-align: center; padding: 60px 24px; color: var(--warm-gray);
+    grid-column: 1 / -1;
+  }
+  .empty-state h3 {
+    font-family: 'Cormorant Garamond', serif; font-size: 22px;
+    color: var(--dark); margin-bottom: 8px;
+  }
+
+  .flash-success {
+    background: rgba(91,140,106,0.1); border: 1px solid rgba(91,140,106,0.3);
+    color: var(--success); padding: 12px 18px; border-radius: var(--radius);
+    font-size: 13px; font-weight: 500; margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>SARA ROTH INTERIORS</h1>
+  <div class="top-bar-actions">
+    <a href="/logout" class="btn btn-secondary">Sign Out</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="page-header">
+    <div>
+      <h2>Projects</h2>
+      <p><%= projects.length %> project<%= projects.length !== 1 ? 's' : '' %> total</p>
+    </div>
+  </div>
+
+  <% if (flash) { %><div class="flash-success"><%= flash %></div><% } %>
+
+  <!-- New Project Form -->
+  <div class="new-project-card">
+    <h3>+ New Project</h3>
+    <form method="POST" action="/projects">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Project Name *</label>
+          <input type="text" id="name" name="name" placeholder="e.g. Smith Residence" required>
+        </div>
+        <div class="form-group">
+          <label for="client_name">Client Name</label>
+          <input type="text" id="client_name" name="client_name" placeholder="e.g. Jane Smith">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label for="description">Notes (optional)</label>
+          <textarea id="description" name="description" placeholder="Any notes about this project..."></textarea>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Create Project</button>
+    </form>
+  </div>
+
+  <!-- Projects Grid -->
+  <div class="projects-grid">
+    <% if (projects.length === 0) { %>
+      <div class="empty-state">
+        <h3>No projects yet</h3>
+        <p>Create your first project above to get started.</p>
+      </div>
+    <% } %>
+    <% projects.forEach(p => { %>
+      <div class="project-card" onclick="window.location='/projects/<%= p.id %>'">
+        <div class="project-card-accent"></div>
+        <div class="project-card-name"><%= p.name %></div>
+        <div class="project-card-client"><%= p.client_name || 'No client name' %></div>
+        <% if (p.description) { %>
+          <div style="font-size:13px;color:var(--warm-gray);margin-bottom:10px;line-height:1.5;"><%= p.description %></div>
+        <% } %>
+        <div class="project-card-meta">
+          <span class="meta-badge"><%= p.work_order_count %> work order<%= p.work_order_count != 1 ? 's' : '' %></span>
+          <span class="meta-date">Updated <%= new Date(p.updated_at).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) %></span>
+        </div>
+        <div class="project-card-actions">
+          <form method="POST" action="/projects/<%= p.id %>/delete" onsubmit="return confirm('Delete this project and all its work orders?')">
+            <button type="submit" class="btn-danger-sm" onclick="event.stopPropagation()">Delete</button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sara Roth Interiors — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mint: #E0EDEB;
+    --mint-light: #EDF5F3;
+    --gold: #B8943E;
+    --gold-light: #CBAB56;
+    --gold-dark: #9A7A2E;
+    --gold-pale: #F3ECD8;
+    --charcoal: #2C2E2D;
+    --dark: #3A3D3C;
+    --warm-gray: #7A7D7C;
+    --white: #FFFFFF;
+    --bg: #F7FAF9;
+    --error: #C45B4A;
+    --shadow-md: 0 4px 24px rgba(44,46,45,0.12);
+    --radius: 8px;
+    --radius-lg: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: radial-gradient(ellipse at 60% 0%, rgba(224,237,235,0.6) 0%, transparent 70%),
+                      radial-gradient(ellipse at 0% 100%, rgba(184,148,62,0.08) 0%, transparent 60%);
+  }
+  .login-wrapper {
+    width: 100%;
+    max-width: 420px;
+    padding: 24px;
+  }
+  .brand {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .brand h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: 4px;
+    color: var(--charcoal);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .brand-divider {
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    width: 70%;
+    margin: 10px auto 8px;
+  }
+  .brand p {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+    font-weight: 600;
+  }
+  .card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(200,203,202,0.35);
+    padding: 40px 36px;
+  }
+  .card h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+  .card .subtitle {
+    font-size: 13px;
+    color: var(--warm-gray);
+    margin-bottom: 28px;
+  }
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gold-dark);
+    margin-bottom: 7px;
+  }
+  input[type="password"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--mint);
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--charcoal);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    letter-spacing: 2px;
+  }
+  input[type="password"]:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184,148,62,0.12);
+  }
+  input[type="password"]::placeholder { letter-spacing: 0; color: #bbb; }
+  .btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 13px 20px;
+    background: var(--charcoal);
+    color: var(--mint-light);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn:hover { background: var(--dark); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .error {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(196,91,74,0.08);
+    border: 1px solid rgba(196,91,74,0.2);
+    border-radius: var(--radius);
+    color: var(--error);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .footer {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 11px;
+    color: var(--warm-gray);
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+<div class="login-wrapper">
+  <div class="brand">
+    <h1>Sara Roth Interiors</h1>
+    <div class="brand-divider"></div>
+    <p>Admin Portal</p>
+  </div>
+  <div class="card">
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Enter your password to access the portal.</p>
+    <form method="POST" action="/login">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter password" autofocus autocomplete="current-password">
+      <button type="submit" class="btn">Enter</button>
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+    </form>
+  </div>
+  <div class="footer">Sara Roth Interiors &mdash; Internal Use Only</div>
+</div>
+</body>
+</html>
