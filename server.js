@@ -173,6 +173,7 @@ app.get('/projects/:projectId/work-orders/:woId', requireAuth, async (req, res) 
 const _SRI_WORK_ORDER_ID = '${wo.id}';
 const _SRI_PROJECT_ID = '${project.id}';
 const _SRI_PROJECT_NAME = ${JSON.stringify(project.name)};
+const _SRI_WO_TITLE = ${JSON.stringify(wo.title)};
 const _SRI_BACK_URL = '/projects/${project.id}';
 
 // ── Breadcrumb ──────────────────────────────────────────────────────────────
@@ -212,7 +213,12 @@ async function _sriLoadFromServer() {
     const r = await fetch('/api/work-orders/' + _SRI_WORK_ORDER_ID);
     if (!r.ok) return;
     const json = await r.json();
-    if (!json.data) return;
+    if (!json.data) {
+      // No saved version yet — seed the title from the work order name
+      const titleEl = document.getElementById('woTitle');
+      if (titleEl && _SRI_WO_TITLE) titleEl.value = _SRI_WO_TITLE;
+      return;
+    }
     _sriApplyData(json.data);
     showToast('Work order loaded');
   } catch(e) {
