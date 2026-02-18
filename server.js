@@ -183,14 +183,14 @@ document.addEventListener('DOMContentLoaded', function() {
   if (topBar) {
     const back = document.createElement('a');
     back.href = _SRI_BACK_URL;
-    back.style.cssText = 'color:rgba(255,255,255,0.55);font-size:12px;text-decoration:none;font-family:"DM Sans",sans-serif;font-weight:500;letter-spacing:0.3px;transition:color 0.2s;margin-right:0;';
+    back.style.cssText = 'color:var(--mint-light,#EDF5F3);font-size:13px;font-weight:600;text-decoration:none;font-family:"DM Sans",sans-serif;padding:7px 14px;border:1px solid rgba(255,255,255,0.28);border-radius:8px;background:rgba(255,255,255,0.08);display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;transition:background 0.2s,border-color 0.2s;';
     back.innerHTML = '&#8592; ' + _SRI_PROJECT_NAME;
-    back.onmouseover = () => back.style.color = 'rgba(255,255,255,0.9)';
-    back.onmouseout = () => back.style.color = 'rgba(255,255,255,0.55)';
+    back.onmouseover = () => { back.style.background = 'rgba(255,255,255,0.18)'; back.style.borderColor = 'rgba(255,255,255,0.45)'; };
+    back.onmouseout = () => { back.style.background = 'rgba(255,255,255,0.08)'; back.style.borderColor = 'rgba(255,255,255,0.28)'; };
     const h1 = topBar.querySelector('h1');
     if (h1) {
       const wrapper = document.createElement('div');
-      wrapper.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
+      wrapper.style.cssText = 'display:flex;align-items:center;gap:16px;';
       h1.parentNode.insertBefore(wrapper, h1);
       wrapper.appendChild(back);
       wrapper.appendChild(h1);
