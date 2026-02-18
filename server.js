@@ -190,7 +190,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const h1 = topBar.querySelector('h1');
     if (h1) {
       const wrapper = document.createElement('div');
-      wrapper.style.cssText = 'display:flex;align-items:center;gap:16px;';
+      wrapper.style.cssText = 'display:flex;align-items:center;gap:12px;min-width:0;';
+      h1.style.cssText += 'flex-shrink:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
       h1.parentNode.insertBefore(wrapper, h1);
       wrapper.appendChild(back);
       wrapper.appendChild(h1);
