@@ -81,6 +81,18 @@ async function deleteWorkOrder(id) {
   await pool.query('DELETE FROM work_orders WHERE id = $1', [id]);
 }
 
+async function toggleSent(id) {
+  const res = await pool.query(
+    `UPDATE work_orders
+     SET sent = NOT sent,
+         sent_at = CASE WHEN NOT sent THEN NOW() ELSE NULL END
+     WHERE id = $1
+     RETURNING sent, sent_at`,
+    [id]
+  );
+  return res.rows[0];
+}
+
 // Work Order Versions
 async function getLatestVersion(workOrderId) {
   const res = await pool.query(
@@ -126,4 +138,4 @@ async function saveVersion(workOrderId, data) {
   return res.rows[0];
 }
 
-module.exports = { pool, init, getProjects, getProject, createProject, deleteProject, touchProject, getWorkOrders, getWorkOrder, createWorkOrder, deleteWorkOrder, getLatestVersion, getVersions, getVersion, saveVersion };
+module.exports = { pool, init, getProjects, getProject, createProject, deleteProject, touchProject, getWorkOrders, getWorkOrder, createWorkOrder, deleteWorkOrder, toggleSent, getLatestVersion, getVersions, getVersion, saveVersion };

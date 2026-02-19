@@ -145,6 +145,16 @@ app.post('/projects/:projectId/work-orders/:woId/delete', requireAuth, async (re
   }
 });
 
+app.post('/projects/:projectId/work-orders/:woId/toggle-sent', requireAuth, async (req, res) => {
+  try {
+    await db.toggleSent(req.params.woId);
+    res.redirect(`/projects/${req.params.projectId}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error updating sent status: ' + err.message);
+  }
+});
+
 // ─── Work Order Editor ────────────────────────────────────────────────────────
 // Reads the existing HTML tool, injects server-mode scripts, and serves it
 let cachedEditorHtml = null;
