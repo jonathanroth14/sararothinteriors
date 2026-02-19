@@ -1025,13 +1025,31 @@ function handleImageSelect(e, itemId, imgId) {
   if (file) processImage(file, itemId, imgId);
 }
 
+// Resize to max 1400px wide and re-encode as JPEG at 82% quality.
+// Keeps PDF exports email-friendly (typically < 2MB instead of 20MB+).
+function compressImageData(src, callback) {
+  const MAX_W = 1400, QUALITY = 0.82;
+  const img = new Image();
+  img.onload = () => {
+    let w = img.width, h = img.height;
+    if (w > MAX_W) { h = Math.round(h * MAX_W / w); w = MAX_W; }
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(c.toDataURL('image/jpeg', QUALITY));
+  };
+  img.src = src;
+}
+
 function processImage(file, itemId, imgId) {
   const reader = new FileReader();
   reader.onload = (ev) => {
-    const item = getItem(itemId);
-    if (!item) return;
-    const img = item.images.find(i => i.id === imgId);
-    if (img) { img.imageData = ev.target.result; img.url = file.name; render(); }
+    compressImageData(ev.target.result, (dataUrl) => {
+      const item = getItem(itemId);
+      if (!item) return;
+      const img = item.images.find(i => i.id === imgId);
+      if (img) { img.imageData = dataUrl; img.url = file.name; render(); }
+    });
   };
   reader.readAsDataURL(file);
 }
@@ -1044,10 +1062,13 @@ function loadImageURL(itemId, imgId) {
   const img = new Image();
   img.crossOrigin = 'anonymous';
   img.onload = () => {
+    const MAX_W = 1400, QUALITY = 0.82;
+    let w = img.width, h = img.height;
+    if (w > MAX_W) { h = Math.round(h * MAX_W / w); w = MAX_W; }
     const c = document.createElement('canvas');
-    c.width = img.width; c.height = img.height;
-    c.getContext('2d').drawImage(img, 0, 0);
-    try { imgSlot.imageData = c.toDataURL('image/png'); } catch(e) { imgSlot.imageData = imgSlot.url; }
+    c.width = w; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, w, h);
+    try { imgSlot.imageData = c.toDataURL('image/jpeg', QUALITY); } catch(e) { imgSlot.imageData = imgSlot.url; }
     render(); showToast('Image loaded');
   };
   img.onerror = () => showToast('Could not load image');
@@ -1221,10 +1242,12 @@ function handleFieldImageSelect(e, itemId, fieldId) {
 function processFieldImage(file, itemId, fieldId) {
   const reader = new FileReader();
   reader.onload = (ev) => {
-    const item = getItem(itemId);
-    if (!item) return;
-    const f = item.fields.find(f => f.id === fieldId);
-    if (f) { f.imageData = ev.target.result; render(); }
+    compressImageData(ev.target.result, (dataUrl) => {
+      const item = getItem(itemId);
+      if (!item) return;
+      const f = item.fields.find(f => f.id === fieldId);
+      if (f) { f.imageData = dataUrl; render(); }
+    });
   };
   reader.readAsDataURL(file);
 }
