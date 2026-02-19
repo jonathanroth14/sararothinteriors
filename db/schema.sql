@@ -33,6 +33,10 @@ CREATE TABLE IF NOT EXISTS work_orders (
 ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS sent BOOLEAN DEFAULT FALSE;
 ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS sent_at TIMESTAMP;
 
+-- Completed status for projects (safe to run on existing DBs)
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS completed BOOLEAN DEFAULT FALSE;
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;
+
 -- Work Order Versions (every save creates a new version — nothing is ever lost)
 CREATE TABLE IF NOT EXISTS work_order_versions (
   id SERIAL PRIMARY KEY,
