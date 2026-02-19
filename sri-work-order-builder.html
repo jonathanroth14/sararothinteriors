@@ -70,6 +70,8 @@
     padding: 9px 20px;
     border-radius: var(--radius);
     border: none;
+    -webkit-appearance: none;
+    appearance: none;
     cursor: pointer;
     transition: all 0.2s ease;
     display: inline-flex;
@@ -87,7 +89,7 @@
   .btn-ghost:hover { background: rgba(184,148,62,0.08); }
 
   /* ═══ LAYOUT ═══ */
-  .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; position: relative; }
 
   .card {
     background: var(--white);
@@ -700,14 +702,28 @@
   }
   .toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+  /* ═══ PAGE BREAK INDICATOR ═══ */
+  .page-break-indicator {
+    position: absolute; left: -32px; right: -32px; height: 0;
+    border-top: 2px dashed rgba(184,148,62,0.45);
+    pointer-events: none; z-index: 50;
+  }
+  .page-break-indicator-label {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    top: -11px; font-size: 10px; font-weight: 700;
+    font-family: 'DM Sans', sans-serif; letter-spacing: 1px;
+    color: var(--gold-dark); background: var(--bg);
+    padding: 0 8px; white-space: nowrap;
+  }
+
   /* ═══ PRINT ═══ */
-  @page { margin: 0; }
+  /* @page must be at top level — placing it inside @media print is invalid and ignored by Safari */
+  @page { size: letter; margin: 0.25in; }
   @media print {
     .top-bar, .add-btn-row, .add-item-btn, .add-room-area, .field-remove-btn,
     .btn, .drafts-panel, .overlay, .toast, .no-print, .image-url-row,
-    .or-divider, .image-controls, .resize-handle, .col-label, .font-controls, .font-toolbar, .label-resize-handle { display: none !important; }
-    body { background: white; margin: 0; padding: 0; }
-    @page { margin: 0.25in; }
+    .or-divider, .image-controls, .resize-handle, .col-label, .font-controls, .font-toolbar, .label-resize-handle, .page-break-indicator { display: none !important; }
+    body { background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .container { max-width: 100%; padding: 0; }
     .card { box-shadow: none; border: none; padding: 0; margin-bottom: 0; }
     .card-header { font-size: 14px; margin-bottom: 4px; padding-bottom: 2px; }
@@ -726,13 +742,14 @@
       max-height: none !important;
       white-space: pre-wrap !important;
     }
-    .room-card { box-shadow: none; margin-bottom: 16px; page-break-inside: avoid; border-bottom: 1px solid #ccc; padding-bottom: 12px; }
+    .room-card { box-shadow: none; margin-bottom: 16px; page-break-inside: auto; break-inside: auto; border-bottom: 1px solid #ccc; padding-bottom: 12px; }
     .room-header { padding: 0 0 6px 0; margin-bottom: 8px; border-bottom: 1px solid #ddd; }
     .room-header-label { font-size: 11px; }
     .room-name-input { font-size: 18px; padding: 2px; }
     .room-body { padding: 0; }
-    .item-card { page-break-inside: auto; margin-bottom: 8px; border-bottom: 1px dashed #ddd; }
-    .image-slot { page-break-inside: avoid; }
+    /* Keep each item together — don't split an item mid-card */
+    .item-card { page-break-inside: avoid; break-inside: avoid; margin-bottom: 8px; border-bottom: 1px dashed #ddd; }
+    .image-slot { page-break-inside: avoid; break-inside: avoid; }
     /* Force all textareas to show full content - no scrollbars */
     textarea, .field-value-wrap, .field-textarea, .field-label-input {
       overflow: visible !important;
@@ -743,8 +760,8 @@
       white-space: pre-wrap !important;
       -webkit-appearance: none !important;
     }
-    /* Page break after job info so items start cleanly */
-    .job-info-print { page-break-after: auto; }
+    /* Job info flows naturally — no forced break, items follow immediately on the same page */
+    .job-info-print { page-break-after: auto; break-after: auto; }
 
     /* Job info section stands apart in print */
     .job-info-print {
@@ -825,6 +842,7 @@
     <button class="btn btn-secondary" onclick="toggleDrafts()">📁 Drafts</button>
     <button class="btn btn-secondary" onclick="saveDraft()">💾 Save</button>
     <button class="btn btn-secondary" onclick="clearForm()">🗑️ New</button>
+    <button class="btn btn-secondary no-print" id="pageBreakBtn" onclick="togglePageBreaks()">📄 Pages</button>
     <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
     <button class="btn btn-primary" onclick="exportXLSX()">📤 Export XLSX</button>
   </div>
@@ -1861,6 +1879,42 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('visible');
   setTimeout(() => t.classList.remove('visible'), 2500);
+}
+
+// ═══════════════════════════════════════
+// PAGE BREAK INDICATOR
+// ═══════════════════════════════════════
+let _pageBreaksOn = false;
+function togglePageBreaks() {
+  _pageBreaksOn = !_pageBreaksOn;
+  const btn = document.getElementById('pageBreakBtn');
+  if (btn) {
+    btn.style.background = _pageBreaksOn ? 'rgba(184,148,62,0.25)' : '';
+    btn.style.borderColor = _pageBreaksOn ? 'rgba(184,148,62,0.6)' : '';
+    btn.style.color = _pageBreaksOn ? 'var(--gold-light)' : '';
+  }
+  document.querySelectorAll('.page-break-indicator').forEach(el => el.remove());
+  if (!_pageBreaksOn) return;
+  const container = document.querySelector('.container');
+  if (!container) return;
+  // US Letter with 0.25in margins: usable height = 10.5in × 96dpi = 1008px
+  // The print container has no padding (padding: 0 in @media print).
+  // On screen the container has 32px top padding — subtract that offset so
+  // line 1 lands where the first page actually breaks in print.
+  const PAGE_H = 1008;
+  const SCREEN_TOP_PAD = 32;
+  const totalH = container.scrollHeight;
+  for (let page = 1; (page * PAGE_H - SCREEN_TOP_PAD) < totalH; page++) {
+    const y = page * PAGE_H - SCREEN_TOP_PAD;
+    const line = document.createElement('div');
+    line.className = 'page-break-indicator';
+    line.style.top = y + 'px';
+    const lbl = document.createElement('span');
+    lbl.className = 'page-break-indicator-label';
+    lbl.textContent = `— PAGE ${page + 1} STARTS —`;
+    line.appendChild(lbl);
+    container.appendChild(line);
+  }
 }
 
 // ═══════════════════════════════════════
