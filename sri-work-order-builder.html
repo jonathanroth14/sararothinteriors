@@ -687,6 +687,9 @@
   .draft-item-title { font-weight: 600; font-size: 14px; color: var(--charcoal); margin-bottom: 4px; }
   .draft-item-meta { font-size: 11px; color: var(--warm-gray); }
   .draft-item-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .draft-sent { background: #f0faf8 !important; }
+  .sent-badge { display: inline-block; font-size: 10px; font-weight: 700; color: #2a7a5a; background: #d4f0e8; padding: 2px 7px; border-radius: 10px; margin-left: 6px; letter-spacing: 0.4px; vertical-align: middle; }
+  .draft-item-meta-sent { font-size: 10px; color: #2a7a5a; margin-top: 2px; }
 
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 199; display: none; opacity: 0; transition: opacity 0.3s; }
   .overlay.visible { display: block; opacity: 1; }
@@ -838,7 +841,8 @@
     <button class="btn btn-secondary" onclick="toggleDrafts()">📁 Drafts</button>
     <button class="btn btn-secondary" onclick="saveDraft()">💾 Save</button>
     <button class="btn btn-secondary" onclick="clearForm()">🗑️ New</button>
-<button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+    <button class="btn btn-secondary" onclick="savePDF()">⬇ Save PDF</button>
+    <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
     <button class="btn btn-primary" onclick="exportXLSX()">📤 Export XLSX</button>
   </div>
 </div>
@@ -1690,15 +1694,32 @@ function deleteDraft(draftId, event) {
   showToast('Draft deleted');
 }
 
+function toggleSent(draftId, event) {
+  event.stopPropagation();
+  let drafts = JSON.parse(localStorage.getItem('sri_drafts2') || '[]');
+  const draft = drafts.find(d => d.id === draftId);
+  if (!draft) return;
+  draft.sent = !draft.sent;
+  if (draft.sent) draft.sentDate = new Date().toLocaleString();
+  else delete draft.sentDate;
+  localStorage.setItem('sri_drafts2', JSON.stringify(drafts));
+  renderDrafts();
+  showToast(draft.sent ? '✓ Marked as sent' : 'Marked as unsent');
+}
+
 function renderDrafts() {
   const list = document.getElementById('draftsList');
   const drafts = JSON.parse(localStorage.getItem('sri_drafts2') || '[]');
   if (!drafts.length) { list.innerHTML = '<div class="empty-hint">No saved drafts yet</div>'; return; }
   list.innerHTML = drafts.map(d => `
-    <div class="draft-item" onclick="loadDraft(${d.id})">
-      <div class="draft-item-title">${esc(d.name)}</div>
+    <div class="draft-item${d.sent ? ' draft-sent' : ''}" onclick="loadDraft(${d.id})">
+      <div class="draft-item-title">
+        ${esc(d.name)}${d.sent ? '<span class="sent-badge">✓ Sent</span>' : ''}
+      </div>
       <div class="draft-item-meta">${d.date}</div>
+      ${d.sent && d.sentDate ? `<div class="draft-item-meta-sent">Sent ${esc(d.sentDate)}</div>` : ''}
       <div class="draft-item-actions">
+        <button class="btn btn-secondary" onclick="toggleSent(${d.id},event)" style="font-size:11px;${d.sent ? 'opacity:0.7;' : ''}">${d.sent ? '↩ Unsent' : '✓ Mark Sent'}</button>
         <button class="btn btn-danger" onclick="deleteDraft(${d.id},event)" style="font-size:11px;">Delete</button>
       </div>
     </div>`).join('');
@@ -1708,6 +1729,15 @@ function toggleDrafts() {
   document.getElementById('draftsPanel').classList.toggle('open');
   document.getElementById('overlay').classList.toggle('visible');
   renderDrafts();
+}
+
+function savePDF() {
+  const jobName = (document.getElementById('jobName').value || 'Work-Order').trim();
+  const prev = document.title;
+  // Set title so Chrome uses it as the default filename in the Save as PDF dialog
+  document.title = jobName + ' - Work Order';
+  window.print();
+  setTimeout(() => { document.title = prev; }, 2000);
 }
 
 function exportDrafts() {
