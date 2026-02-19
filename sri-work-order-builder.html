@@ -718,7 +718,7 @@
 
   /* ═══ PRINT ═══ */
   /* @page must be at top level — placing it inside @media print is invalid and ignored by Safari */
-  @page { size: letter; margin: 0.25in; }
+  @page { margin: 0.25in; }
   @media print {
     .top-bar, .add-btn-row, .add-item-btn, .add-room-area, .field-remove-btn,
     .btn, .drafts-panel, .overlay, .toast, .no-print, .image-url-row,
@@ -747,8 +747,8 @@
     .room-header-label { font-size: 11px; }
     .room-name-input { font-size: 18px; padding: 2px; }
     .room-body { padding: 0; }
-    /* Keep each item together — don't split an item mid-card */
-    .item-card { page-break-inside: avoid; break-inside: avoid; margin-bottom: 8px; border-bottom: 1px dashed #ddd; }
+    /* Items flow freely across pages; only image slots are kept together */
+    .item-card { page-break-inside: auto; break-inside: auto; margin-bottom: 8px; border-bottom: 1px dashed #ddd; }
     .image-slot { page-break-inside: avoid; break-inside: avoid; }
     /* Force all textareas to show full content - no scrollbars */
     textarea, .field-value-wrap, .field-textarea, .field-label-input {
