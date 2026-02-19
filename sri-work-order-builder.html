@@ -702,27 +702,23 @@
   }
   .toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-  /* ═══ PAGE BREAK INDICATOR ═══ */
-  .page-break-indicator {
-    position: absolute; left: -32px; right: -32px; height: 0;
-    border-top: 2px dashed rgba(184,148,62,0.45);
-    pointer-events: none; z-index: 50;
-  }
-  .page-break-indicator-label {
-    position: absolute; left: 50%; transform: translateX(-50%);
-    top: -11px; font-size: 10px; font-weight: 700;
-    font-family: 'DM Sans', sans-serif; letter-spacing: 1px;
-    color: var(--gold-dark); background: var(--bg);
-    padding: 0 8px; white-space: nowrap;
-  }
 
   /* ═══ PRINT ═══ */
   /* @page must be at top level — placing it inside @media print is invalid and ignored by Safari */
   @page { margin: 0.25in; }
+  /* Override gold palette to neutral grey for photocopy-friendly output */
+  @media print {
+    :root {
+      --gold: #888;
+      --gold-light: #aaa;
+      --gold-dark: #666;
+      --gold-pale: #eee;
+    }
+  }
   @media print {
     .top-bar, .add-btn-row, .add-item-btn, .add-room-area, .field-remove-btn,
     .btn, .drafts-panel, .overlay, .toast, .no-print, .image-url-row,
-    .or-divider, .image-controls, .resize-handle, .col-label, .font-controls, .font-toolbar, .label-resize-handle, .page-break-indicator { display: none !important; }
+    .or-divider, .image-controls, .resize-handle, .col-label, .font-controls, .font-toolbar, .label-resize-handle { display: none !important; }
     body { background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .container { max-width: 100%; padding: 0; }
     .card { box-shadow: none; border: none; padding: 0; margin-bottom: 0; }
@@ -766,18 +762,18 @@
     /* Job info section stands apart in print */
     .job-info-print {
       border: 2px solid var(--gold) !important;
-      padding: 6px 12px !important;
-      margin-bottom: 8px !important;
+      padding: 2px 8px !important;
+      margin-bottom: 6px !important;
       background: #f5f9f8 !important;
     }
     .job-info-print .card-header {
-      color: #9A7A2E !important;
-      border-bottom: 2px solid #B8943E !important;
+      color: #666 !important;
+      border-bottom: 2px solid #888 !important;
       font-size: 14px !important;
-      margin-bottom: 4px !important;
-      padding-bottom: 2px !important;
+      margin-bottom: 1px !important;
+      padding-bottom: 1px !important;
     }
-    .job-info-print label { color: #9A7A2E !important; }
+    .job-info-print label { color: #666 !important; }
     .job-info-print input {
       background: white !important;
       color: #2C2E2D !important;
@@ -842,8 +838,7 @@
     <button class="btn btn-secondary" onclick="toggleDrafts()">📁 Drafts</button>
     <button class="btn btn-secondary" onclick="saveDraft()">💾 Save</button>
     <button class="btn btn-secondary" onclick="clearForm()">🗑️ New</button>
-    <button class="btn btn-secondary no-print" id="pageBreakBtn" onclick="togglePageBreaks()">📄 Pages</button>
-    <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+<button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
     <button class="btn btn-primary" onclick="exportXLSX()">📤 Export XLSX</button>
   </div>
 </div>
@@ -1882,40 +1877,6 @@ function showToast(msg) {
 }
 
 // ═══════════════════════════════════════
-// PAGE BREAK INDICATOR
-// ═══════════════════════════════════════
-let _pageBreaksOn = false;
-function togglePageBreaks() {
-  _pageBreaksOn = !_pageBreaksOn;
-  const btn = document.getElementById('pageBreakBtn');
-  if (btn) {
-    btn.style.background = _pageBreaksOn ? 'rgba(184,148,62,0.25)' : '';
-    btn.style.borderColor = _pageBreaksOn ? 'rgba(184,148,62,0.6)' : '';
-    btn.style.color = _pageBreaksOn ? 'var(--gold-light)' : '';
-  }
-  document.querySelectorAll('.page-break-indicator').forEach(el => el.remove());
-  if (!_pageBreaksOn) return;
-  const container = document.querySelector('.container');
-  if (!container) return;
-  // US Letter with 0.25in margins: usable height = 10.5in × 96dpi = 1008px
-  // The print container has no padding (padding: 0 in @media print).
-  // On screen the container has 32px top padding — subtract that offset so
-  // line 1 lands where the first page actually breaks in print.
-  const PAGE_H = 1008;
-  const SCREEN_TOP_PAD = 32;
-  const totalH = container.scrollHeight;
-  for (let page = 1; (page * PAGE_H - SCREEN_TOP_PAD) < totalH; page++) {
-    const y = page * PAGE_H - SCREEN_TOP_PAD;
-    const line = document.createElement('div');
-    line.className = 'page-break-indicator';
-    line.style.top = y + 'px';
-    const lbl = document.createElement('span');
-    lbl.className = 'page-break-indicator-label';
-    lbl.textContent = `— PAGE ${page + 1} STARTS —`;
-    line.appendChild(lbl);
-    container.appendChild(line);
-  }
-}
 
 // ═══════════════════════════════════════
 // PRINT PREP
