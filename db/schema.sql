@@ -29,6 +29,10 @@ CREATE TABLE IF NOT EXISTS work_orders (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Sent status (added after initial deploy — safe to run on existing DBs)
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS sent BOOLEAN DEFAULT FALSE;
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS sent_at TIMESTAMP;
+
 -- Work Order Versions (every save creates a new version — nothing is ever lost)
 CREATE TABLE IF NOT EXISTS work_order_versions (
   id SERIAL PRIMARY KEY,

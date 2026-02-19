@@ -48,6 +48,10 @@
   .btn-secondary:hover { background: rgba(255,255,255,0.18); }
   .btn-danger-sm { background: transparent; color: var(--error); border: 1px solid rgba(196,91,74,0.3); padding: 5px 12px; font-size: 12px; border-radius: var(--radius); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; }
   .btn-danger-sm:hover { background: rgba(196,91,74,0.08); }
+  .btn-sent-sm { background: transparent; color: #2a7a5a; border: 1px solid rgba(42,122,90,0.3); padding: 5px 12px; font-size: 12px; border-radius: var(--radius); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; }
+  .btn-sent-sm:hover { background: rgba(42,122,90,0.08); }
+  .btn-sent-sm.is-sent { background: rgba(42,122,90,0.1); color: #1f6047; }
+  .meta-badge.sent { background: #d4f0e8; color: #1f6047; }
 
   .container { max-width: 1000px; margin: 0 auto; padding: 36px 24px 80px; }
 
@@ -216,14 +220,23 @@
           <div class="wo-card-title"><%= wo.title %></div>
           <div class="wo-card-meta">
             <span class="meta-badge gold"><%= wo.version_count %> version<%= wo.version_count != 1 ? 's' : '' %></span>
+            <% if (wo.sent) { %>
+              <span class="meta-badge sent">✓ Sent</span>
+            <% } %>
             <% if (wo.last_saved) { %>
               <span class="meta-date">Last saved <%= new Date(wo.last_saved).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) %></span>
             <% } else { %>
               <span class="meta-date">Never saved</span>
             <% } %>
+            <% if (wo.sent && wo.sent_at) { %>
+              <span class="meta-date">Sent <%= new Date(wo.sent_at).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) %></span>
+            <% } %>
           </div>
         </div>
         <div class="wo-card-actions" onclick="event.stopPropagation()">
+          <form method="POST" action="/projects/<%= project.id %>/work-orders/<%= wo.id %>/toggle-sent">
+            <button type="submit" class="btn-sent-sm<%= wo.sent ? ' is-sent' : '' %>"><%= wo.sent ? '↩ Unsent' : '✓ Mark Sent' %></button>
+          </form>
           <form method="POST" action="/projects/<%= project.id %>/work-orders/<%= wo.id %>/delete" onsubmit="return confirm('Delete this work order and all its history?')">
             <button type="submit" class="btn-danger-sm">Delete</button>
           </form>
