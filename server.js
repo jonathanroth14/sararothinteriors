@@ -155,6 +155,16 @@ app.post('/projects/:projectId/work-orders/:woId/toggle-sent', requireAuth, asyn
   }
 });
 
+app.post('/projects/:projectId/toggle-completed', requireAuth, async (req, res) => {
+  try {
+    await db.toggleCompleted(req.params.projectId);
+    res.redirect('/projects');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error updating completed status: ' + err.message);
+  }
+});
+
 // ─── Work Order Editor ────────────────────────────────────────────────────────
 // Reads the existing HTML tool, injects server-mode scripts, and serves it
 let cachedEditorHtml = null;

@@ -93,6 +93,18 @@ async function toggleSent(id) {
   return res.rows[0];
 }
 
+async function toggleCompleted(id) {
+  const res = await pool.query(
+    `UPDATE projects
+     SET completed = NOT completed,
+         completed_at = CASE WHEN NOT completed THEN NOW() ELSE NULL END
+     WHERE id = $1
+     RETURNING completed, completed_at`,
+    [id]
+  );
+  return res.rows[0];
+}
+
 // Work Order Versions
 async function getLatestVersion(workOrderId) {
   const res = await pool.query(
@@ -138,4 +150,4 @@ async function saveVersion(workOrderId, data) {
   return res.rows[0];
 }
 
-module.exports = { pool, init, getProjects, getProject, createProject, deleteProject, touchProject, getWorkOrders, getWorkOrder, createWorkOrder, deleteWorkOrder, toggleSent, getLatestVersion, getVersions, getVersion, saveVersion };
+module.exports = { pool, init, getProjects, getProject, createProject, deleteProject, touchProject, getWorkOrders, getWorkOrder, createWorkOrder, deleteWorkOrder, toggleSent, toggleCompleted, getLatestVersion, getVersions, getVersion, saveVersion };
